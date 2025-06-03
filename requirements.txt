@@ -1,0 +1,7 @@
+streamlit
+pandas
+googletrans==4.0.0rc1
+pdf2image
+pytesseract
+Pillow
+openpyxl
