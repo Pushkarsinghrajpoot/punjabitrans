@@ -6,6 +6,18 @@ import os
 class OCRProcessor:
     def __init__(self):
         self.punjabi_config = '--oem 3 --psm 6 -l pan'  # pan is the Tesseract language code for Punjabi
+        self.tesseract_available = self._check_tesseract_available()
+        
+    def _check_tesseract_available(self):
+        """Check if Tesseract is available and working"""
+        try:
+            # Try to get tesseract version
+            pytesseract.get_tesseract_version()
+            return True
+        except Exception as e:
+            st.warning(f"⚠️ Tesseract OCR not available: {str(e)}")
+            st.info("💡 OCR functionality will be limited. Text extraction from PDFs may not work correctly.")
+            return False
         
     def extract_punjabi_text(self, image):
         """
@@ -17,6 +29,10 @@ class OCRProcessor:
         Returns:
             str: Extracted Punjabi text
         """
+        if not self.tesseract_available:
+            st.warning("⚠️ Tesseract OCR not available. Cannot extract text from this image.")
+            return "[OCR UNAVAILABLE - TEXT EXTRACTION FAILED]"  # Return a placeholder message
+            
         try:
             # Preprocess image for better OCR
             processed_image = self._preprocess_for_ocr(image)

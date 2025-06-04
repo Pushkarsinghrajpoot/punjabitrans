@@ -9,10 +9,12 @@ import json
 class Translator:
     def __init__(self):
         # Set the API key for Google Cloud Translation API
-        self.api_key = "AIzaSyCZl6-xJ7bFUleENKh3sVozTsR3kpEURq8"
+        # Load from environment variable or config if available
+        self.api_key = os.environ.get('GOOGLE_TRANSLATE_API_KEY', "AIzaSyCZl6-xJ7bFUleENKh3sVozTsR3kpEURq8")
         self.source_lang = 'pa'  # Punjabi language code for Google Translate
         self.target_lang = 'en'  # English language code
         self.base_url = "https://translation.googleapis.com/language/translate/v2"
+        self.api_available = True  # Flag to track API availability
     
     def translate_to_english(self, punjabi_text):
         """
@@ -26,6 +28,10 @@ class Translator:
         """
         if not punjabi_text or not punjabi_text.strip():
             return ""
+        
+        # If API is already marked as unavailable, use fallback immediately
+        if not self.api_available:
+            return self._fallback_translation(punjabi_text)
         
         try:
             # Clean the text before translation
@@ -60,6 +66,9 @@ class Translator:
                             translated_chunks.append(processed_text)
                         else:
                             error_msg = f"API Error: {response.status_code} - {response.text}"
+                            if response.status_code in [400, 401, 403]:  # Bad request, unauthorized, forbidden
+                                self.api_available = False  # Mark API as unavailable for future calls
+                                return self._fallback_translation(punjabi_text)
                             st.warning(error_msg)
                             translated_chunks.append(f"[Translation failed for this section: {chunk[:50]}...]")
                     except Exception as chunk_error:
@@ -71,7 +80,16 @@ class Translator:
             
         except Exception as e:
             st.error(f"Translation failed: {str(e)}")
-            return f"Translation error: {str(e)}"
+            # If there's an exception during translation, fall back to basic processing
+            return self._fallback_translation(punjabi_text)
+            
+    def _fallback_translation(self, text):
+        """
+        A simple fallback when the translation API is unavailable.
+        This simply returns the original text with a note.
+        In a real app, you might want to implement a more sophisticated fallback.
+        """
+        return "[Translation API unavailable - Original text preserved]\n\n" + text
     
     def _clean_text_for_translation(self, text):
         """

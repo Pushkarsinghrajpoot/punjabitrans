@@ -122,10 +122,31 @@ def main():
     st.title("📄 Punjabi PDF OCR & Translation")
     st.markdown("Extract Punjabi text from PDFs and translate to English with Excel export")
     
-    # Initialize processors
-    pdf_handler = PDFHandler()
-    ocr_processor = OCRProcessor()
-    translator = Translator()
+    # Initialize processors with error handling
+    try:
+        pdf_handler = PDFHandler()
+    except Exception as e:
+        st.error(f"❌ Error initializing PDF handler: {str(e)}")
+        pdf_handler = None
+        
+    try:
+        ocr_processor = OCRProcessor()
+    except Exception as e:
+        st.error(f"❌ Error initializing OCR processor: {str(e)}")
+        ocr_processor = None
+        
+    try:
+        translator = Translator()
+    except Exception as e:
+        st.error(f"❌ Error initializing translator: {str(e)}")
+        translator = None
+        
+    # Show error message if any components failed to initialize
+    if not pdf_handler or not ocr_processor or not translator:
+        st.error("Some components failed to initialize. The app may have limited functionality.")
+        st.info("Please check the errors above for more information.")
+        
+    # Continue with the app even if some components are missing
     
     # Processing mode selection
     processing_mode = st.radio(
@@ -148,6 +169,12 @@ def main():
             
             # Process button
             if st.button("🔄 Process PDF", type="primary"):
+                # Check if all required components are initialized
+                if not pdf_handler or not ocr_processor or not translator:
+                    st.error("❌ Cannot process PDF: Some required components failed to initialize.")
+                    st.info("📋 Please check the error messages above and try again later.")
+                    return
+                    
                 try:
                     # Create progress bar
                     progress_bar = st.progress(0)
@@ -219,6 +246,12 @@ def main():
             
             # Process all files button
             if st.button("🔄 Process All PDFs", type="primary"):
+                # Check if all required components are initialized
+                if not pdf_handler or not ocr_processor or not translator:
+                    st.error("❌ Cannot process PDFs: Some required components failed to initialize.")
+                    st.info("📋 Please check the error messages above and try again later.")
+                    return
+                    
                 try:
                     # Create progress bars
                     overall_progress = st.progress(0)
