@@ -1,15 +1,6 @@
 version: 1.0
-runtime: python3
-build:
-  commands:
-    pre-build:
-      - sudo apt-get update
-      - sudo apt-get install -y build-essential python3-dev pkg-config libpng-dev
-      - sudo apt-get install -y poppler-utils tesseract-ocr libtesseract-dev tesseract-ocr-pan
-      - python -m pip install --upgrade pip
-    build:
-      - pip install --no-cache-dir -r requirements.txt
-run:
-  command: streamlit run app.py --server.port=8080 --server.address=0.0.0.0
-  network:
-    port: 8080
+builds:
+  - dockerfile: Dockerfile
+ports:
+  - port: 10000
+    container-port: 10000
