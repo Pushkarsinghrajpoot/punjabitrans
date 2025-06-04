@@ -1,7 +1,7 @@
-streamlit
-pandas
+streamlit>=1.45.1
+pandas>=2.2.3
 googletrans==4.0.0rc1
-pdf2image
-pytesseract
-Pillow
-openpyxl
+pdf2image>=1.17.0
+pytesseract>=0.3.13
+Pillow>=11.2.1
+openpyxl>=3.1.5
