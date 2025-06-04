@@ -356,4 +356,36 @@ def main():
     st.info("📋 The app automatically extracts polling station details and creates structured Excel files with columns: Serial No, Building - Address, Section Covered")
 
 if __name__ == "__main__":
+    import os
+    # Try to use PORT from environment variable if set, otherwise use 8501
+    port = int(os.environ.get("PORT", 8501))
+    
+    # If default port 8501 is specified but not working, try alternate ports
+    if port == 8501:
+        alternate_ports = [8502, 8503, 8504, 8505]
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.bind(("localhost", port))
+            # 8501 is available, continue
+            s.close()
+        except socket.error:
+            # 8501 is unavailable, try alternates
+            s.close()
+            for alt_port in alternate_ports:
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.bind(("localhost", alt_port))
+                    s.close()
+                    port = alt_port  # Found an available port
+                    break
+                except socket.error:
+                    s.close()
+                    continue
+    
+    # Set Streamlit configuration via environment variables
+    os.environ["STREAMLIT_SERVER_PORT"] = str(port)
+    os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
+    os.environ["STREAMLIT_SERVER_ENABLECORS"] = "true"
+    
     main()
