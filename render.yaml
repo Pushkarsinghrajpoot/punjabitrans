@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: punjabi-translator
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    numInstances: 1
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000
