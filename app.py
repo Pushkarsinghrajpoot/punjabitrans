@@ -122,31 +122,10 @@ def main():
     st.title("📄 Punjabi PDF OCR & Translation")
     st.markdown("Extract Punjabi text from PDFs and translate to English with Excel export")
     
-    # Initialize processors with error handling
-    try:
-        pdf_handler = PDFHandler()
-    except Exception as e:
-        st.error(f"❌ Error initializing PDF handler: {str(e)}")
-        pdf_handler = None
-        
-    try:
-        ocr_processor = OCRProcessor()
-    except Exception as e:
-        st.error(f"❌ Error initializing OCR processor: {str(e)}")
-        ocr_processor = None
-        
-    try:
-        translator = Translator()
-    except Exception as e:
-        st.error(f"❌ Error initializing translator: {str(e)}")
-        translator = None
-        
-    # Show error message if any components failed to initialize
-    if not pdf_handler or not ocr_processor or not translator:
-        st.error("Some components failed to initialize. The app may have limited functionality.")
-        st.info("Please check the errors above for more information.")
-        
-    # Continue with the app even if some components are missing
+    # Initialize processors
+    pdf_handler = PDFHandler()
+    ocr_processor = OCRProcessor()
+    translator = Translator()
     
     # Processing mode selection
     processing_mode = st.radio(
@@ -169,12 +148,6 @@ def main():
             
             # Process button
             if st.button("🔄 Process PDF", type="primary"):
-                # Check if all required components are initialized
-                if not pdf_handler or not ocr_processor or not translator:
-                    st.error("❌ Cannot process PDF: Some required components failed to initialize.")
-                    st.info("📋 Please check the error messages above and try again later.")
-                    return
-                    
                 try:
                     # Create progress bar
                     progress_bar = st.progress(0)
@@ -246,12 +219,6 @@ def main():
             
             # Process all files button
             if st.button("🔄 Process All PDFs", type="primary"):
-                # Check if all required components are initialized
-                if not pdf_handler or not ocr_processor or not translator:
-                    st.error("❌ Cannot process PDFs: Some required components failed to initialize.")
-                    st.info("📋 Please check the error messages above and try again later.")
-                    return
-                    
                 try:
                     # Create progress bars
                     overall_progress = st.progress(0)
@@ -356,36 +323,4 @@ def main():
     st.info("📋 The app automatically extracts polling station details and creates structured Excel files with columns: Serial No, Building - Address, Section Covered")
 
 if __name__ == "__main__":
-    import os
-    # Try to use PORT from environment variable if set, otherwise use 8501
-    port = int(os.environ.get("PORT", 8501))
-    
-    # If default port 8501 is specified but not working, try alternate ports
-    if port == 8501:
-        alternate_ports = [8502, 8503, 8504, 8505]
-        import socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.bind(("localhost", port))
-            # 8501 is available, continue
-            s.close()
-        except socket.error:
-            # 8501 is unavailable, try alternates
-            s.close()
-            for alt_port in alternate_ports:
-                try:
-                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.bind(("localhost", alt_port))
-                    s.close()
-                    port = alt_port  # Found an available port
-                    break
-                except socket.error:
-                    s.close()
-                    continue
-    
-    # Set Streamlit configuration via environment variables
-    os.environ["STREAMLIT_SERVER_PORT"] = str(port)
-    os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
-    os.environ["STREAMLIT_SERVER_ENABLECORS"] = "true"
-    
     main()
